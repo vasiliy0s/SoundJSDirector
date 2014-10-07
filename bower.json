@@ -1,0 +1,38 @@
+{
+  "name": "soundjs-director",
+  "version": "0.0.0",
+  "authors": [
+    "Vasiliy Os <talk@vasiliy0s.com>"
+  ],
+  "description": "Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector",
+  "main": "soundjs-director.js",
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "js",
+    "audio",
+    "sounds",
+    "html5",
+    "manager",
+    "createjs",
+    "soundjs",
+    "soundsjsdirector"
+  ],
+  "license": "Apache License Version 2.0",
+  "homepage": "https://github.com/vasiliy0s/SoundJSDirector",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "*.json",
+    "Gruntfile.js",
+    "src",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "SoundJS": "*"
+  }
+}
