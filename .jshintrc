@@ -20,6 +20,9 @@
   "smarttabs": true,
   "globals": {
     "createjs": true,
-    "SoundsJS": true
+    "SoundsJS": true,
+    "SoundJSDirector": true,
+    "SoundJSDirectorGroup": true,
+    "DEFAULT_OPTIONS": true
   }
 }
