@@ -1,0 +1,71 @@
+'use strict';
+
+// TODO: add events for methods.
+
+function SoundJSDirectorGroup (name, options) {
+  
+  var argsLen = arguments.length;
+  
+  if (1 === argsLen) {
+    switch (typeof name) {
+      case 'string': {
+        options = SoundJSDirector.extend(DEFAULT_OPTIONS);
+        options.name = name;
+      } break;
+      case 'object': {
+        options = name;
+        name = options.name;
+      } break;
+    }
+  }
+  
+  else if (0 === argsLen) {
+    throw 'SoundJSDirector.Group there is no passed arguments';
+  }
+  
+  if (!(name && 'string' === typeof name)) {
+    throw 'SoundJSDirector.Group cannot initialize new sounds group without name';
+  }
+
+  this.name = name;
+  options = this.options = SoundJSDirector.extend({}, options, DEFAULT_OPTIONS, true);
+  this.sounds = [];
+  
+  var addingSounds = options.sounds;
+  options.sounds = null;
+  if (addingSounds instanceof Array) {
+    this.join(addingSounds);
+  }
+
+}
+
+SoundJSDirector.Group = SoundJSDirector.prototype.Group = SoundJSDirectorGroup;
+
+var SoundJSDirectorGroupProto = SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
+
+// Join @sounds (sound instance or array of sound instances) to current group.
+SoundJSDirectorGroupProto.join = function joinGroup (sounds) {
+  if (sounds instanceof Array) {
+    SoundJSDirector.each(sounds, this.join, this);
+  }
+  else if ('object' === typeof sounds) {
+    SoundJSDirector.setSoundGroup(sounds, this);
+  }
+  return this;
+};
+
+// Leave @sound (instance or array of instances) from current group.
+SoundJSDirectorGroupProto.leave = function leaveGroup (sounds) {
+  if (sounds instanceof Array) {
+    SoundJSDirector.each(sounds, this.leave, this);
+  }
+  else if ('object' === typeof sounds) {
+    SoundJSDirector.unsetSoundGroup(sounds, this);
+  }
+  return this;
+};
+
+// Call @callback (within @ctx) with every sound of group.
+SoundJSDirectorGroupProto.eachSound = function eachSound (callback, ctx) {
+  SoundJSDirector.each(this.sounds, callback, ctx || null);
+};
