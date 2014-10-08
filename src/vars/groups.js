@@ -11,6 +11,26 @@ SoundJSDirector.group = function (name) {
   }
 };
 
+// Apply @callback with every group where sound is contain.
+SoundJSDirector.eachSoundGroup = function (sound, callback) {
+
+  if ('function' !== typeof callback) {
+    return;
+  }
+  
+  var args = SoundJSDirector.toArray(callback, 1),
+      groups = SoundJSDirector.getSoundGroups(sound);
+  
+  args.unshift(null, null);
+  
+  for (var i = groups.length; i--; ) {
+    args[0] = groups[i];
+    args[1] = i;
+    callback.apply(null, args);
+  }
+  
+};
+
 // Return array of group where sound is.
 SoundJSDirector.getSoundGroups = function (sound) {
   if (!(sound && 'object' === typeof sound)) {
