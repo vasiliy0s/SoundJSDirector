@@ -1,5 +1,4 @@
-
-this.createjs = this.createjs || {};
+'use strict';
 
 // TODO: new SoundJSDirector.Group() - constructor of sound groups.
 // TODO: new SoundJSDirector.Sound() - contructor-wrapper for soun instances with depended by group settings methods.
@@ -14,23 +13,19 @@ this.createjs = this.createjs || {};
 // TODO: Group.getVolume() - -/-, etc.
 // TODO: autoinclude to PreloadJS as plugin if it possible.
 
-;(function (createjs) {
-  
-  'use strict';
+var SoundJS = createjs.SoundJS = createjs.SoundJS || {};
 
-  var SoundJS = createjs.SoundJS = createjs.SoundJS || {};
+function SoundJSDirector (/* config */) {
+  // TODO: initalize with @config.
+}
 
-  function SoundJSDirector (/* config */) {
-    // TODO: initalize with @config.
-  }
+SoundJS.Director = SoundJSDirector;
 
-  createjs.SoundJSDirector = SoundJSDirector;
+createjs.SoundJSDirector = SoundJSDirector;
 
-  var DirectorProto = SoundJSDirector.prototype = new createjs.EventDispatcher();
+var DirectorProto = SoundJSDirector.prototype = new createjs.EventDispatcher();
 
-  DirectorProto._sendEvent = function (type) {
-    var event = new createjs.Event(type);
-    this.dispatchEvent(event);
-  };
-
-} (createjs));
+DirectorProto._sendEvent = function (type) {
+  var event = new createjs.Event(type);
+  this.dispatchEvent(event);
+};
