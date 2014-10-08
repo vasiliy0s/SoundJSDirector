@@ -23,6 +23,7 @@
     "SoundsJS": true,
     "SoundJSDirector": true,
     "SoundJSDirectorGroup": true,
+    "SoundJSDirectorGroupProto": true,
     "DEFAULT_OPTIONS": true
   }
 }
