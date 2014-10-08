@@ -19,7 +19,7 @@ SoundJSDirector.extend = function extend (target) {
     target = {};
   }
   
-  for (var i = 0, o, val; i < len; i++) {
+  for (var i = 0, o, val, tVal; i < len; i++) {
   
     o = args[i];
 
@@ -30,8 +30,9 @@ SoundJSDirector.extend = function extend (target) {
     for (var p in o) {
 
       val = o[p];
+      tVal = target[p];
 
-      if (!o.hasOwnProperty(p) || val === null || 'undefined' === typeof val) {
+      if ((tVal || 'undefined' !== typeof tVal) || !o.hasOwnProperty(p) || val === null || 'undefined' === typeof val) {
         continue;
       }
 
