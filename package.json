@@ -1,7 +1,7 @@
 {
-  "name": "ng-score-charger",
+  "name": "soundjs-director",
   "version": "0.0.0",
-  "description": "AngularJS module which process chargable score boards like slots via directive",
+  "description": "Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector",
   "main": "soundjs-director.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -23,14 +23,10 @@
   "devDependencies": {
     "grunt": "^0.4.5",
     "grunt-contrib-concat": "^0.5.0",
-    "grunt-contrib-connect": "^0.8.0",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.5.1",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-include-source": "^0.4.1",
     "grunt-newer": "^0.7.0",
-    "grunt-ng-annotate": "^0.3.2",
-    "grunt-wiredep": "^1.8.0",
     "jshint-stylish": "^0.4.0",
     "load-grunt-tasks": "^0.6.0",
     "time-grunt": "^1.0.0"
