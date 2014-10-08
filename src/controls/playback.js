@@ -4,11 +4,34 @@
 
 SoundJSDirectorGroupProto.play = function playGroup (options) {
   // TODO: Pass group options to every sounds considering every group of sound.
-  this.eachSound(function (sound) {
-    // TODO: pass arguments multiplied with all instance groups.
-    sound.play(options);
-  }, this);
+
+  var _options = SoundJSDirector.extend({}, options, this.options);
+
+  if (!_options.collapsed) {
+    this.eachSound(function (sound) {
+      // TODO: pass arguments multiplied with all instance groups.
+      // TODO: check sound.playState.
+      sound.play(_options);
+    }, this);
+  }
+  
+  else {
+    var sound, 
+        played = false,
+        PLAY_SUCCEEDED = createjs.Sound.PLAY_SUCCEEDED,
+        sounds = this.sounds,
+        stop = sounds.length * 2;
+    do {
+      sound = SoundJSDirector.randomItem(this.sounds);
+      if (sound && PLAY_SUCCEEDED !== sound.playState) {
+        sound.play(_options);
+        played = true;
+      }
+    } while (stop-- && !played);
+  }
+  
   return this;
+
 };
 
 SoundJSDirectorGroupProto.pause = function pauseGroup () {
