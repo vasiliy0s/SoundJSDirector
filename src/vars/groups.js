@@ -12,27 +12,14 @@ SoundJSDirector.group = function (name) {
 };
 
 // Apply @callback with every group where sound is contain.
-SoundJSDirector.eachSoundGroup = function (sound, callback) {
-
-  if ('function' !== typeof callback) {
-    return;
-  }
-  
-  var args = SoundJSDirector.toArray(callback, 1),
-      groups = SoundJSDirector.getSoundGroups(sound);
-  
-  args.unshift(null, null);
-  
-  for (var i = groups.length; i--; ) {
-    args[0] = groups[i];
-    args[1] = i;
-    callback.apply(null, args);
-  }
-  
+SoundJSDirector.eachSoundGroup = SoundJSDirector.prototype.eachSoundGroup = 
+function eachSoundGroup (sound, callback) {
+  SoundJSDirector.each(SoundJSDirector.getSoundGroups(sound), callback);
 };
 
 // Return array of group where sound is.
-SoundJSDirector.getSoundGroups = function (sound) {
+SoundJSDirector.getSoundGroups = SoundJSDirector.prototype.getSoundGroups = 
+function getSoundGroups (sound) {
   if (!(sound && 'object' === typeof sound)) {
     return [];
   }
@@ -40,7 +27,8 @@ SoundJSDirector.getSoundGroups = function (sound) {
 };
 
 // Add group to sound groups.
-SoundJSDirector.setSoundGroup = function (sound, group) {
+SoundJSDirector.setSoundGroup = SoundJSDirector.prototype.setSoundGroup = 
+function setSoundGroup (sound, group) {
   if (!(sound && 'object' === typeof sound)) {
     return;
   }
@@ -49,4 +37,25 @@ SoundJSDirector.setSoundGroup = function (sound, group) {
   }
   var soundGroups = SoundJSDirector.getSoundGroups(sound);
   soundGroups.push(group);
+  group.sounds.push(sound);
+};
+
+// Remove @sound from @group.
+SoundJSDirector.unsetSoundGroup = SoundJSDirector.prototype.unsetSoundGroup =
+function unsetSoundGroup (sound, group) {
+  if (!(sound && 'object' === typeof sound)) {
+    return;
+  }
+  if ('string' === typeof group) {
+    group = SoundJSDirector.group(group);
+  }
+  var soundGroups = SoundJSDirector.getSoundGroups(sound),
+      groupSounds = group.sounds,
+      index;
+  while ((index = soundGroups.indexOf(group)) >= 0) {
+    soundGroups.splice(index, 1);
+  }
+  while ((index = groupSounds.indexOf(sound)) >= 0) {
+    groupSounds.splice(index, 1);
+  }
 };
