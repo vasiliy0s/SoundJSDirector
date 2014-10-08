@@ -26,7 +26,10 @@ module.exports = function(grunt) {
         } (/^\'use\sstrict\';\n/)),
       },
       dist: {
-        src: ['src/{,*/}*.js'],
+        src: [
+          'src/*.js',
+          'src/*/*.js'
+        ],
         dest: 'soundjs-director.js',
       },
     },
