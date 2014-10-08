@@ -1,7 +1,7 @@
 'use strict';
 
 // Global groups collection by names.
-var GROUPS = SoundJSDirector.groups = {};
+var GROUPS = {};
 
 // Group mixed getter/setter.
 SoundJSDirector.group = function (name) {
@@ -9,4 +9,24 @@ SoundJSDirector.group = function (name) {
     case false: return GROUPS[name];
     case true: return (GROUPS[name.name] = name);
   }
+};
+
+// Return array of group where sound is.
+SoundJSDirector.getSoundGroups = function (sound) {
+  if (!(sound && 'object' === typeof sound)) {
+    return [];
+  }
+  return (sound._groups || (sound._groups = []));
+};
+
+// Add group to sound groups.
+SoundJSDirector.setSoundGroup = function (sound, group) {
+  if (!(sound && 'object' === typeof sound)) {
+    return;
+  }
+  if ('string' === typeof group) {
+    group = SoundJSDirector.group(group);
+  }
+  var soundGroups = SoundJSDirector.getSoundGroups(sound);
+  soundGroups.push(group);
 };
