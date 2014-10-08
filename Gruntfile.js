@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
-          'src/*.js',
+          'src/module.js',
           'src/*/*.js',
         ],
         dest: 'soundjs-director.js',
@@ -56,7 +56,7 @@ module.exports = function(grunt) {
       gruntfile: {
         src: ['Gruntfile.js']
       },
-      dest: {
+      dist: {
         src: ['<%= concat.dist.dest %>']
       }
     },
@@ -78,7 +78,7 @@ module.exports = function(grunt) {
     'jshint:gruntfile', 
     'jshint:sources', 
     'concat',
-    'jshint:dest',
+    'jshint:dist',
     'uglify'
   ]);
 
