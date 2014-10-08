@@ -19,6 +19,7 @@
   "trailing": true,
   "smarttabs": true,
   "globals": {
-    "createjs": true
+    "createjs": true,
+    "SoundsJS": true
   }
 }
