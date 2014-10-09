@@ -8,26 +8,16 @@
 
 'use strict';
 
-// TODO: new SoundJSDirector.Group() - constructor of sound groups.
-// TODO: new SoundJSDirector.Sound() - contructor-wrapper for soun instances with depended by group settings methods.
-// TODO: new SoundJSDirector.Manager() - manager with scoped registered groups, sounds and package applyers.
-// TODO: events in group like single sound.
 // TODO: SoundJSDirector.setGroups() - register groups of sounds.
 // TODO: SoundJSDirector.setSounds() - register sounds (with initialization or loading).
-// TODO: Group.play(options) - play all sounds in group.
-// TODO: Group.stop(options) - -/-.
-// TODO: Group.pause() - -/-.
+// TODO: Process priorities of every sound with group.
 // TODO: Group.setVolume() - -/-.
 // TODO: Group.getVolume() - -/-, etc.
-// TODO: autoinclude to PreloadJS as plugin if it possible.
+// TODO: provide sounds events in group like 'playing', 'played', 'loaded', other...
 
-var SoundJS = createjs.SoundJS = createjs.SoundJS || {};
-
-function SoundJSDirector (/* config */) {
-  // TODO: initalize with @config.
+function SoundJSDirector () {
+  throw 'SoundJSDirector cannot be initialized. Use \'new SoundJSDirector.Group\' for manage sounds';
 }
-
-SoundJS.Director = SoundJSDirector;
 
 createjs.SoundJSDirector = SoundJSDirector;
 
@@ -42,67 +32,257 @@ DirectorProto._sendEvent = function (type) {
 // TODO: add events for methods.
 
 function SoundJSDirectorGroup (name, options) {
+  
   var argsLen = arguments.length;
+  
   if (1 === argsLen) {
-    name = options.name;
+    switch (typeof name) {
+      case 'string': {
+        options = SoundJSDirector.extend(DEFAULT_OPTIONS);
+        options.name = name;
+      } break;
+      case 'object': {
+        options = name;
+        name = options.name;
+      } break;
+    }
   }
+  
   else if (0 === argsLen) {
     throw 'SoundJSDirector.Group there is no passed arguments';
   }
-  this.name = name;
-  options = this.options = SoundJSDirector.extend({}, options, DEFAULT_OPTIONS);
-  this.sounds = [];
-  var addingSounds = options.sounds;
-  if (addingSounds instanceof Array) {
-    for (var i = addingSounds.length; i--; ) {
-      this.addSound(addingSounds[i]);
-    }
+  
+  if (!(name && 'string' === typeof name)) {
+    throw 'SoundJSDirector.Group cannot initialize new sounds group without name';
   }
+
+  var addingSounds = options.sounds;
+
+  this.name = name;
+
+  // Parse options.
+  this.options = SoundJSDirector.extend(
+    SoundJSDirector.parseOptions(options),
+    DEFAULT_OPTIONS, 
+    true
+  );
+
+  // Sound collections.
+  this.sounds = [];
+  this._playing = [];
+  this._wait = [];
+  
+  if (addingSounds instanceof Array) {
+    this.join(addingSounds);
+  }
+
+  // Register group for access by name.
+  SoundJSDirector.group(this);
+
 }
 
 SoundJSDirector.Group = SoundJSDirector.prototype.Group = SoundJSDirectorGroup;
 
 var SoundJSDirectorGroupProto = SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
 
-SoundJSDirectorGroupProto.join = function joinGroup (sound) {
-  if (sound instanceof Array) {
-    for (var i = sound.length; i--; ) {
-      this.join(sound[i]);
-    }
-    return this;
+// Add sounds with instances creation from SoundJS @manifest.
+SoundJSDirectorGroupProto.add = function addSounds (manifests) {
+  var Sound = createjs.Sound,
+      instance;
+  if (!(manifests instanceof Array)) {
+    manifests = [manifests];
   }
-  SoundJSDirector.setSoundGroup(sound, this);
-  this.sounds.push(sound);
+  SoundJSDirector.each(
+    SoundJSDirector.toArray(manifests),
+    function (manifest) {
+      manifest = ('object' === typeof manifest ? manifest : {'src': manifest});
+      var res = Sound.registerSound(manifest, manifest.basePath);
+      if (!res) {
+        throw 'SoundJSDirector.Group ' + this.name + ' cannot register sound ' + (manifest.id || manifest.src);
+      }
+      instance = Sound.createInstance(manifest.id);
+      if (instance) {
+        this.join(instance);
+      }
+    },
+    this
+  );
   return this;
 };
 
-SoundJSDirectorGroupProto.leave = function leaveGroup (/*sound*/) {
-  // body...
+// Join @sounds (sound instance or array of sound instances) to current group.
+SoundJSDirectorGroupProto.join = function joinGroup (sounds) {
+  if (sounds && 'object' === typeof sounds) {
+    if (!(sounds instanceof Array)) {
+      SoundJSDirector.setSoundGroup(sounds, this);
+    }
+    else {
+      SoundJSDirector.each(sounds, this.join, this);
+    }
+  }
   return this;
 };
 
-SoundJSDirectorGroupProto.play = function playGroup () {
+// Leave @sound (instance or array of instances) from current group.
+SoundJSDirectorGroupProto.leave = function leaveGroup (sounds) {
+  if (sounds instanceof Array) {
+    SoundJSDirector.each(sounds, this.leave, this);
+  }
+  else if ('object' === typeof sounds) {
+    SoundJSDirector.unsetSoundGroup(sounds, this);
+  }
+  return this;
+};
+
+// Call @callback (with @ctx) with every sound of group.
+SoundJSDirectorGroupProto.eachSound = function eachSound (callback, ctx) {
+  SoundJSDirector.each(this.sounds, callback, ctx || null);
+};
+
+// Call @callback (with @ctx) with every currently playing sound.
+SoundJSDirectorGroupProto.eachPlayingSound = function eachPlayingSound (callback, ctx) {
+  SoundJSDirector.each(this._playing, callback, ctx || null);
+};
+
+// Call @callback (with @ctx) with every currently not playing sound.
+SoundJSDirectorGroupProto.eachWaitSound = function eachWaitSound (callback, ctx) {
+  SoundJSDirector.each(this._wait, callback, ctx || null);
+};
+
+// Returns sound instance by id or src (as is setted in .add() method).
+SoundJSDirectorGroupProto.sound = function getSound (sound) {
+  return this.sounds[sound] || null;
+};
+
+// Check for sound instance exists in group;
+SoundJSDirectorGroupProto.exists = function soundExists (sound) {
+  switch (typeof sound) {
+    case 'object': return this.sounds.indexOf(sound) >= 0;
+    case 'string': return !!this.sounds[sound];
+    default: return false;
+  }
+};
+
+
+// Set @value for group.
+SoundJSDirectorGroupProto.setLoop = function setGroupLoop (value) {
+  this.options.loop = parseInt(value) || 0;
+  return this;
+};
+
+// Switch group loop to 0 if it not 0 and -1 or @value if it is.
+SoundJSDirectorGroupProto.switchLoop = function switchGroupLoop (value) {
+  var options = this.options,
+      loop = options.loop;
+  options.loop = loop === 0 ? (parseInt(value) || -1) : 0;
+  return this;
+};
+
+
+// Set @value state of sound muting.
+SoundJSDirectorGroupProto.setMute = function setGroupMute (value) {
+  this.eachSound(function (sound) {
+    sound.setMute(value);
+  });
+  return this;
+};
+
+// Switch current sound mute state.
+SoundJSDirectorGroupProto.switchMute = function switchGroupMute () {
+  this.eachSound(function (sound) {
+    sound.setMute(!sound.getMute());
+  });
+  return this;
+};
+
+
+SoundJSDirectorGroupProto.setPan = function setGroupPan () {
   // TODO
   return this;
 };
 
+
+// TODO: add easings to all of current methods.
+
+SoundJSDirectorGroupProto.play = function playGroup (options, all) {
+  // TODO: Pass group options to every sounds considering every group of sound.
+
+  options = SoundJSDirector.extend(
+    SoundJSDirector.parseOptions(options),
+    this.options
+  );
+
+  if (!options.collapsed) {
+    this._playSounds(options, all);
+  }
+  
+  else {
+    this._playCollapsed(options, all);
+  }
+  
+  return this;
+
+};
+
+// Play free/all sounds in group.
+SoundJSDirectorGroupProto._playSounds = function (options, all) {
+  // TODO: pass arguments multiplied with all instance groups.
+  SoundJSDirector.each(
+    all ? this.sounds : this._wait, 
+    function (sound) {
+      sound.play(options);
+    }
+  );
+  return this;
+};
+
+// Play first of free/all sounds.
+SoundJSDirectorGroupProto._playCollapsed = function (options, all) {
+  // TODO: pass arguments multiplied with all instance groups.
+  var sound = SoundJSDirector.randomItem(all ? this.sounds : this._wait);
+  if (sound) {
+    sound.play(options);
+  }
+  return this;
+};
+
+// Pause all playing sounds.
 SoundJSDirectorGroupProto.pause = function pauseGroup () {
-  // TODO
+  this.eachPlayingSound(function (sound) {
+    sound.pause();
+  });
   return this;
 };
 
+// Resume all paused group sounds.
 SoundJSDirectorGroupProto.resume = function resumeGroup () {
-  // TODO
+  this.eachPlayingSound(function (sound) {
+    sound.resume();
+  });
   return this;
 };
 
+// Stop all playing group sounds.
 SoundJSDirectorGroupProto.stop = function stopGroup () {
-  // TODO
+  this.eachPlayingSound(function (sound) {
+    sound.stop();
+  });
   return this;
 };
 
+
+
+// Set @value position for every sound in group.
+SoundJSDirectorGroupProto.setPosition = function setGroupPosition (value) {
+  this.eachPlayingSound(function (sound) {
+    sound.setPosition(value);
+  });
+  return this;
+};
+
+
+// Set all sounds volume.
 SoundJSDirectorGroupProto.setVolume = function setGroupVolume (volume) {
-  // TODO
   
   var options = options;
 
@@ -121,36 +301,47 @@ SoundJSDirectorGroupProto.setVolume = function setGroupVolume (volume) {
   
   for (var i = len, sound; i--; ) {
     sound = sounds[i];
-    sound.setVolume(sound.getGroupVolume());
+    sound.setVolume(this.getSoundVolume(sound));
   }
   
   return this;
 
 };
 
-SoundJSDirectorGroupProto.setLoop = function setGroupLoop () {
-  // TODO
-  return this;
+// Compute sound instance volume multiplied to groups volumes.
+SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound) {
+  var volume = sound.getVolume() || 0.0;
+  SoundJSDirector.eachSoundGroup(sound, function (group) {
+    volume *= group.options.volume || 0.0;
+  });
+  return volume;
 };
 
-SoundJSDirectorGroupProto.setPan = function setGroupPan () {
-  // TODO
-  return this;
-};
 
-SoundJSDirectorGroupProto.setMute = function setGroupMute () {
-  // TODO
-  return this;
-};
+// Apply @callback with passing each of collection item with index of collection.
+SoundJSDirector.each = function (collection, callback, ctx) {
 
-SoundJSDirectorGroupProto.setUnmute = function setGroupUnumte () {
-  // TODO
-  return this;
-};
+  if ('function' !== typeof callback || !collection || 'object' !== typeof collection) {
+    return;
+  }
 
-SoundJSDirectorGroupProto.switchMute = function switchGroupMute () {
-  // TODO
-  return this;
+  var _collection = collection.slice();
+
+  ctx = ctx || null;
+
+  if (collection instanceof Array) {
+    for (var i = 0, len = _collection.length; i < len; i++) {
+      callback.call(ctx, _collection[i], i);
+    }
+  }
+  else {
+    for (var p in collection) {
+      if (collection.hasOwnProperty(p)) {
+      callback.call(ctx, _collection[p], p);
+      }
+    }
+  }
+  
 };
 
 
@@ -173,7 +364,7 @@ SoundJSDirector.extend = function extend (target) {
     target = {};
   }
   
-  for (var i = 0, o, val; i < len; i++) {
+  for (var i = 0, o, val, tVal; i < len; i++) {
   
     o = args[i];
 
@@ -184,8 +375,9 @@ SoundJSDirector.extend = function extend (target) {
     for (var p in o) {
 
       val = o[p];
+      tVal = target[p];
 
-      if (!o.hasOwnProperty(p) || val === null || 'undefined' === typeof val) {
+      if ((tVal || 'undefined' !== typeof tVal) || !o.hasOwnProperty(p) || val === null || 'undefined' === typeof val) {
         continue;
       }
 
@@ -205,6 +397,32 @@ SoundJSDirector.extend = function extend (target) {
 };
 
 
+// Returns random item of @collection.
+SoundJSDirector.randomItem = function (collection) {
+  if ('object' === typeof collection) {
+    if (collection instanceof Array) {
+      var max = collection.length - 1;
+      return collection[Math.round(max * Math.random())];
+    }
+    else {
+      throw 'SoundJSDirector.randomItem cannot process objects';
+    }
+  }
+};
+
+
+// Move @item from @src collection to @dest.
+SoundJSDirector.switchCollection = function (item, src, dest) {
+  var index;
+  while ((index = src.indexOf(item)) >= 0) {
+    src.splice(index, 1);
+  }
+  if (dest) {
+    dest[dest.length] = item;
+  }
+};
+
+
 // toArray utillity converts @arg to array with slising from @num.
 SoundJSDirector.toArray = (function (slice) {
   return function toArray (arg, num) {
@@ -220,28 +438,142 @@ var GROUPS = {};
 SoundJSDirector.group = function (name) {
   switch (name instanceof SoundJSDirector.Group) {
     case false: return GROUPS[name];
+    // TODO: Check redefines for memory leaks.
     case true: return (GROUPS[name.name] = name);
   }
 };
 
+// Apply @callback with every group where sound is contain.
+SoundJSDirector.eachSoundGroup = SoundJSDirector.prototype.eachSoundGroup = 
+function eachSoundGroup (sound, callback) {
+  SoundJSDirector.each(SoundJSDirector.getSoundGroups(sound), callback);
+};
+
 // Return array of group where sound is.
-SoundJSDirector.getSoundGroups = function (sound) {
+SoundJSDirector.getSoundGroups = SoundJSDirector.prototype.getSoundGroups = 
+function getSoundGroups (sound) {
   if (!(sound && 'object' === typeof sound)) {
     return [];
   }
-  return (sound._groups || (sound._groups = []));
+  return (sound._groups || (function () {
+    var groups = sound._groups = [];
+    SoundJSDirector.handleSoundsStates(sound);
+    return groups;
+  } ()));
 };
 
 // Add group to sound groups.
-SoundJSDirector.setSoundGroup = function (sound, group) {
+SoundJSDirector.setSoundGroup = SoundJSDirector.prototype.setSoundGroup = 
+function setSoundGroup (sound, group) {
+
   if (!(sound && 'object' === typeof sound)) {
     return;
   }
+
   if ('string' === typeof group) {
     group = SoundJSDirector.group(group);
   }
-  var soundGroups = SoundJSDirector.getSoundGroups(sound);
+
+  var soundGroups = SoundJSDirector.getSoundGroups(sound),
+      sounds = group.sounds,
+      Sound = createjs.Sound;
+
   soundGroups.push(group);
+  sounds.push(sound);
+  sounds[sound.id || sound.src] = sound;
+  
+  // Add sound to same with state group collection.
+  switch (sound.playState) {
+    default:
+    case Sound.PLAY_INITED:
+    case Sound.PLAY_FAILED:
+    case Sound.PLAY_FINISHED:
+    case Sound.PLAY_INTERRUPTED: {
+      group._wait.push(sound);
+    } break;
+
+    case Sound.PLAY_SUCCEEDED: {
+      group._playing.push(sound);
+    } break;
+  }
+
+};
+
+// Remove @sound from @group.
+SoundJSDirector.unsetSoundGroup = SoundJSDirector.prototype.unsetSoundGroup =
+function unsetSoundGroup (sound, group) {
+
+  if (!(sound && 'object' === typeof sound)) {
+    return;
+  }
+
+  if ('string' === typeof group) {
+    group = SoundJSDirector.group(group);
+  }
+
+  var soundGroups = SoundJSDirector.getSoundGroups(sound),
+      groupSounds = group.sounds,
+      switchCollection = SoundJSDirector.switchCollection;
+
+  switchCollection(group, soundGroups);
+  switchCollection(sound, groupSounds);
+  switchCollection(sound, group._wait);
+  switchCollection(sound, group._playing);
+
+  var id = sound.id,
+      src = sound.src;
+
+  if (sound === groupSounds[id]) {
+    groupSounds[id] = null;
+    delete groupSounds[id];
+  }
+
+  if (sound === groupSounds[src]) {
+    groupSounds[src] = null;
+    delete groupSounds[src];
+  }
+  
+};
+
+// Handle sound states and switch it between groups collections.
+SoundJSDirector.handleSoundsStates = function (sound) {
+
+  var unifyedGroupHandler = function (e) {
+
+    var from, to;
+    
+    switch (e.type) {
+      case 'complete':
+      case 'failed':
+      case 'interrupted': {
+        from = '_playing';
+        to = '_wait';
+      } break;
+
+      case 'succeeded':
+      case 'loop': {
+        from = '_wait';
+        to = '_playing';
+      } break;
+    }
+
+    var switchCollection = SoundJSDirector.switchCollection;
+    SoundJSDirector.eachSoundGroup(sound, function (group) {
+      switchCollection(
+        sound,
+        group[from],
+        group[to]
+      );
+    });
+
+  };
+
+  sound.on('complete', unifyedGroupHandler);
+  sound.on('failed', unifyedGroupHandler);
+  sound.on('interrupted', unifyedGroupHandler);
+  sound.on('loop', unifyedGroupHandler);
+  sound.on('succeeded', unifyedGroupHandler);
+  
 };
 
 
@@ -253,23 +585,25 @@ var DEFAULT_OPTIONS = {
   delay: 0,
   offset: 0,
   pan: 0,
+  collapsed: false,
+  // priority: 0, // TODO: process in collapsed groups.
+  // offsets: [0], // TODO: process offsets for every playing sound
 };
 
+var DEFAULT_OPTIONS_KEYS = Object.keys(DEFAULT_OPTIONS);
 
-var SOUNDS = {},
-    SOUND_INSTANCES = [];
-
-// 
-SoundJSDirector.sound = function (name) {
-  switch (typeof name) {
-    case 'string': return SOUNDS[name];
-    default: {
-      var instance = name;
-      name = instance.name;
-      SOUNDS[name] = instance;
-      SOUND_INSTANCES.push(instance);
+// Returns object with only known options.
+SoundJSDirector.parseOptions = function (obj) {
+  var options = {};
+  if ('object' === typeof obj) {
+    for (var i = DEFAULT_OPTIONS_KEYS.length, key; i--; ) {
+      key = DEFAULT_OPTIONS_KEYS[i];
+      if (obj.hasOwnProperty(key)) {
+        options[key] = obj[key];
+      }
     }
   }
+  return options;
 };
 
 
