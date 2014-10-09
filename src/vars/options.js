@@ -8,4 +8,6 @@ var DEFAULT_OPTIONS = {
   delay: 0,
   offset: 0,
   pan: 0,
+  collpsed: false,
+  priority: 0, // not supported yet.
 };
