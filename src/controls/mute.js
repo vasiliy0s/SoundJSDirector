@@ -1,16 +1,17 @@
 'use strict';
 
-SoundJSDirectorGroupProto.setMute = function setGroupMute () {
-  // TODO
+// Set @value state of sound muting.
+SoundJSDirectorGroupProto.setMute = function setGroupMute (value) {
+  this.eachSound(function (sound) {
+    sound.setMute(value);
+  });
   return this;
 };
 
-SoundJSDirectorGroupProto.setUnmute = function setGroupUnumte () {
-  // TODO
-  return this;
-};
-
+// Switch current sound mute state.
 SoundJSDirectorGroupProto.switchMute = function switchGroupMute () {
-  // TODO
+  this.eachSound(function (sound) {
+    sound.setMute(!sound.getMute());
+  });
   return this;
 };
