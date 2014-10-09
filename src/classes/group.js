@@ -37,6 +37,9 @@ function SoundJSDirectorGroup (name, options) {
     this.join(addingSounds);
   }
 
+  // Register group for access by name.
+  SoundJSDirector.group(this);
+
 }
 
 SoundJSDirector.Group = SoundJSDirector.prototype.Group = SoundJSDirectorGroup;
