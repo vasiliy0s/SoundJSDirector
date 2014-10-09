@@ -7,6 +7,7 @@ var GROUPS = {};
 SoundJSDirector.group = function (name) {
   switch (name instanceof SoundJSDirector.Group) {
     case false: return GROUPS[name];
+    // TODO: Check redefines for memory leaks.
     case true: return (GROUPS[name.name] = name);
   }
 };
