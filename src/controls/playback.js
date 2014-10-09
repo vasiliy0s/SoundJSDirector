@@ -43,7 +43,7 @@ SoundJSDirectorGroupProto._playCollapsed = function (options, all) {
 
 // Pause all playing sounds.
 SoundJSDirectorGroupProto.pause = function pauseGroup () {
-  SoundJSDirector.each(this._playing, function (sound) {
+  this.eachPlayingSound(function (sound) {
     sound.pause();
   });
   return this;
@@ -51,7 +51,7 @@ SoundJSDirectorGroupProto.pause = function pauseGroup () {
 
 // Resume all paused group sounds.
 SoundJSDirectorGroupProto.resume = function resumeGroup () {
-  SoundJSDirector.each(this._playing, function (sound) {
+  this.eachPlayingSound(function (sound) {
     sound.resume();
   });
   return this;
@@ -59,7 +59,7 @@ SoundJSDirectorGroupProto.resume = function resumeGroup () {
 
 // Stop all playing group sounds.
 SoundJSDirectorGroupProto.stop = function stopGroup () {
-  SoundJSDirector.each(this._playing, function (sound) {
+  this.eachPlayingSound(function (sound) {
     sound.stop();
   });
   return this;
