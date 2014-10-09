@@ -43,13 +43,35 @@ SoundJSDirector.Group = SoundJSDirector.prototype.Group = SoundJSDirectorGroup;
 
 var SoundJSDirectorGroupProto = SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
 
+// Add sounds from SoundJS @manifest.
+SoundJSDirectorGroupProto.add = function addSounds (manifests) {
+  var Sound = createjs.Sound,
+      instance;
+  if (!(manifests instanceof Array)) {
+    manifests = [manifests];
+  }
+  SoundJSDirector.each(
+    SoundJSDirector.toArray(manifests),
+    function (manifest) {
+      instance = Sound.createInstance(manifest);
+      if (instance) {
+        this.join(instance);
+      }
+    },
+    this
+  );
+  return this;
+};
+
 // Join @sounds (sound instance or array of sound instances) to current group.
 SoundJSDirectorGroupProto.join = function joinGroup (sounds) {
-  if (sounds instanceof Array) {
-    SoundJSDirector.each(sounds, this.join, this);
-  }
-  else if ('object' === typeof sounds) {
-    SoundJSDirector.setSoundGroup(sounds, this);
+  if (sounds && 'object' === typeof sounds) {
+    if (!(sounds instanceof Array)) {
+      SoundJSDirector.setSoundGroup(sounds, this);
+    }
+    else {
+      SoundJSDirector.each(sounds, this.join, this);
+    }
   }
   return this;
 };
