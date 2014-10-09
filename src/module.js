@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO: add README.md with basic functionality.
+// TODO: extend README.md to full documentation.
 // TODO: SoundJSDirector.setGroups() - register groups of sounds.
 // TODO: SoundJSDirector.setSounds() - register sounds (with initialization or loading).
 // TODO: Process priorities of every sound with group.
