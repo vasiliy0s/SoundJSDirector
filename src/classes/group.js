@@ -49,7 +49,7 @@ SoundJSDirector.Group = SoundJSDirector.prototype.Group = SoundJSDirectorGroup;
 
 var SoundJSDirectorGroupProto = SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
 
-// Add sounds from SoundJS @manifest.
+// Add sounds with instances creation from SoundJS @manifest.
 SoundJSDirectorGroupProto.add = function addSounds (manifests) {
   var Sound = createjs.Sound,
       instance;
@@ -59,7 +59,12 @@ SoundJSDirectorGroupProto.add = function addSounds (manifests) {
   SoundJSDirector.each(
     SoundJSDirector.toArray(manifests),
     function (manifest) {
-      instance = Sound.createInstance(manifest);
+      manifest = ('object' === typeof manifest ? manifest : {'src': manifest});
+      var res = Sound.registerSound(manifest, manifest.basePath);
+      if (!res) {
+        throw 'SoundJSDirector.Group ' + this.name + ' cannot register sound ' + (manifest.id || manifest.src);
+      }
+      instance = Sound.createInstance(manifest.id);
       if (instance) {
         this.join(instance);
       }
