@@ -24,7 +24,11 @@ function getSoundGroups (sound) {
   if (!(sound && 'object' === typeof sound)) {
     return [];
   }
-  return (sound._groups || (sound._groups = []));
+  return (sound._groups || (function () {
+    var groups = sound._groups = [];
+    SoundJSDirector.handleSoundsStates(sound);
+    return groups;
+  } ()));
 };
 
 // Add group to sound groups.
@@ -62,15 +66,10 @@ function unsetSoundGroup (sound, group) {
 
   var soundGroups = SoundJSDirector.getSoundGroups(sound),
       groupSounds = group.sounds,
-      index;
+      switchCollection = SoundJSDirector.switchCollection;
 
-  while ((index = soundGroups.indexOf(group)) >= 0) {
-    soundGroups.splice(index, 1);
-  }
-
-  while ((index = groupSounds.indexOf(sound)) >= 0) {
-    groupSounds.splice(index, 1);
-  }
+  switchCollection(group, soundGroups);
+  switchCollection(sound, groupSounds);
 
   var id = sound.id,
       src = sound.src;
@@ -85,4 +84,44 @@ function unsetSoundGroup (sound, group) {
     delete groupSounds[src];
   }
   
+};
+
+// Handle sound states and switch it between groups collections.
+SoundJSDirector.handleSoundsStates = function (sound) {
+
+  var unifyedGroupHandler = function (e) {
+
+    var from, to;
+    
+    switch (e.type) {
+      case 'complete':
+      case 'failed':
+      case 'interrupted': {
+        from = '_playing';
+        to = '_wait';
+      } break;
+
+      case 'succeeded':
+      case 'loop': {
+        from = '_wait';
+        to = '_playing';
+      } break;
+    }
+
+    var switchCollection = SoundJSDirector.switchCollection;
+    SoundJSDirector.eachSoundGroup(sound, function (group) {
+      switchCollection(
+        sound,
+        group[from],
+        group[to]
+      );
+    });
+
+  };
+
+  sound.on('complete', unifyedGroupHandler);
+  sound.on('failed', unifyedGroupHandler);
+  sound.on('interrupted', unifyedGroupHandler);
+  sound.on('loop', unifyedGroupHandler);
+  sound.on('succeeded', unifyedGroupHandler);
 };
