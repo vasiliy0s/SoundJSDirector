@@ -5,7 +5,10 @@
 SoundJSDirectorGroupProto.play = function playGroup (options, all) {
   // TODO: Pass group options to every sounds considering every group of sound.
 
-  options = SoundJSDirector.extend({}, options, this.options);
+  options = SoundJSDirector.extend(
+    SoundJSDirector.parseOptions(options),
+    this.options
+  );
 
   if (!options.collapsed) {
     this._playSounds(options, all);
