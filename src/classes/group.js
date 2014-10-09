@@ -27,20 +27,25 @@ function SoundJSDirectorGroup (name, options) {
     throw 'SoundJSDirector.Group cannot initialize new sounds group without name';
   }
 
-  this.name = name;
-  options = this.options = SoundJSDirector.extend({}, options, DEFAULT_OPTIONS, true);
-  this.sounds = [];
+  var addingSounds = options.sounds;
 
+  this.name = name;
+
+  // Parse options.
+  this.options = SoundJSDirector.extend(
+    SoundJSDirector.parseOptions(options),
+    DEFAULT_OPTIONS, 
+    true
+  );
+
+  // Sound collections.
+  this.sounds = [];
   this._playing = [];
   this._wait = [];
   
-  var addingSounds = options.sounds;
   if (addingSounds instanceof Array) {
     this.join(addingSounds);
   }
-
-  // Remove useless options (flush memory).
-  options.sounds = options.name = null;
 
   // Register group for access by name.
   SoundJSDirector.group(this);
