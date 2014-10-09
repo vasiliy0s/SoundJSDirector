@@ -35,10 +35,12 @@ function SoundJSDirectorGroup (name, options) {
   this._wait = [];
   
   var addingSounds = options.sounds;
-  options.sounds = null;
   if (addingSounds instanceof Array) {
     this.join(addingSounds);
   }
+
+  // Remove useless options (flush memory).
+  options.sounds = options.name = null;
 
   // Register group for access by name.
   SoundJSDirector.group(this);
