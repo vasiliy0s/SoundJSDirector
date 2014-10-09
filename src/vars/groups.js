@@ -44,11 +44,27 @@ function setSoundGroup (sound, group) {
   }
 
   var soundGroups = SoundJSDirector.getSoundGroups(sound),
-      sounds = group.sounds;
+      sounds = group.sounds,
+      Sound = createjs.Sound;
 
   soundGroups.push(group);
   sounds.push(sound);
   sounds[sound.id || sound.src] = sound;
+  
+  // Add sound to same with state group collection.
+  switch (sound.playState) {
+    default:
+    case Sound.PLAY_INITED:
+    case Sound.PLAY_FAILED:
+    case Sound.PLAY_FINISHED:
+    case Sound.PLAY_INTERRUPTED: {
+      group._wait.push(sound);
+    } break;
+
+    case Sound.PLAY_SUCCEEDED: {
+      group._playing.push(sound);
+    } break;
+  }
 
 };
 
@@ -70,6 +86,8 @@ function unsetSoundGroup (sound, group) {
 
   switchCollection(group, soundGroups);
   switchCollection(sound, groupSounds);
+  switchCollection(sound, group._wait);
+  switchCollection(sound, group._playing);
 
   var id = sound.id,
       src = sound.src;
