@@ -142,4 +142,5 @@ SoundJSDirector.handleSoundsStates = function (sound) {
   sound.on('interrupted', unifyedGroupHandler);
   sound.on('loop', unifyedGroupHandler);
   sound.on('succeeded', unifyedGroupHandler);
+  
 };
