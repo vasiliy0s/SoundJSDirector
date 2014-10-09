@@ -94,10 +94,7 @@ SoundJSDirectorGroupProto.eachSound = function eachSound (callback, ctx) {
 
 // Returns sound instance by id or src (as is setted in .add() method).
 SoundJSDirectorGroupProto.sound = function getSound (sound) {
-  switch (typeof sound) {
-    case 'string': return this.sounds[sound] || null;
-    default: return null;
-  }
+  return this.sounds[sound] || null;
 };
 
 // Check for sound instance exists in group;
