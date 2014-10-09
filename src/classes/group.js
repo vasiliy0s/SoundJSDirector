@@ -98,9 +98,19 @@ SoundJSDirectorGroupProto.leave = function leaveGroup (sounds) {
   return this;
 };
 
-// Call @callback (within @ctx) with every sound of group.
+// Call @callback (with @ctx) with every sound of group.
 SoundJSDirectorGroupProto.eachSound = function eachSound (callback, ctx) {
   SoundJSDirector.each(this.sounds, callback, ctx || null);
+};
+
+// Call @callback (with @ctx) with every currently playing sound.
+SoundJSDirectorGroupProto.eachPlayingSound = function eachPlayingSound (callback, ctx) {
+  SoundJSDirector.each(this._playing, callback, ctx || null);
+};
+
+// Call @callback (with @ctx) with every currently not playing sound.
+SoundJSDirectorGroupProto.eachWaitSound = function eachWaitSound (callback, ctx) {
+  SoundJSDirector.each(this._wait, callback, ctx || null);
 };
 
 // Returns sound instance by id or src (as is setted in .add() method).
