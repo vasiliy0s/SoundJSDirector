@@ -2,16 +2,13 @@
 
 // TODO: SoundJSDirector.setGroups() - register groups of sounds.
 // TODO: SoundJSDirector.setSounds() - register sounds (with initialization or loading).
-// TODO: Group.play(options) - play all sounds in group.
-// TODO: Group.stop(options) - -/-.
-// TODO: Group.pause() - -/-.
+// TODO: Process priorities of every sound with group.
 // TODO: Group.setVolume() - -/-.
 // TODO: Group.getVolume() - -/-, etc.
-// TODO: autoinclude to PreloadJS as plugin if it possible.
 // TODO: provide sounds events in group like 'playing', 'played', 'loaded', other...
 
-function SoundJSDirector (/* config */) {
-  // TODO: initalize with @config.
+function SoundJSDirector () {
+  throw 'SoundJSDirector cannot be initialized. Use \'new SoundJSDirector.Group\' for manage sounds';
 }
 
 createjs.SoundJSDirector = SoundJSDirector;
