@@ -30,6 +30,9 @@ function SoundJSDirectorGroup (name, options) {
   this.name = name;
   options = this.options = SoundJSDirector.extend({}, options, DEFAULT_OPTIONS, true);
   this.sounds = [];
+
+  this._playing = [];
+  this._wait = [];
   
   var addingSounds = options.sounds;
   options.sounds = null;
