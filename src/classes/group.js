@@ -91,3 +91,16 @@ SoundJSDirectorGroupProto.leave = function leaveGroup (sounds) {
 SoundJSDirectorGroupProto.eachSound = function eachSound (callback, ctx) {
   SoundJSDirector.each(this.sounds, callback, ctx || null);
 };
+
+SoundJSDirectorGroupProto.sound = function getSound () {
+  // return 
+};
+
+// Check for sound instance exists in group;
+SoundJSDirectorGroupProto.exists = function soundExists (sound) {
+  switch (typeof sound) {
+    case 'object': return this.sounds.indexOf(sound) >= 0;
+    case 'string': return !!this.sounds[sound];
+    default: return false;
+  }
+};
