@@ -1,5 +1,5 @@
 /**
- * SoundJS Director v0.0.0
+ * SoundJS Director v0.1.0
  * Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector
  * by Vasiliy Os <talk@vasiliy0s.com>
  */
