@@ -83,35 +83,44 @@ SoundJSDirectorGroupProto.playSound = function playGroupSound (id, options) {
   }
 
   if (sound) {
-    sound.play(options);
+    this._playSoundWithOptions(sound, options);
   }
 
   return this;
 };
 
 // Play @sound instance with @options.
-SoundJSDirectorGroupProto._playSoundWithOptions = function playSoundWithOptions (/*sound, options*/) {
-  // TODO: process options of every sound.
+SoundJSDirectorGroupProto._playSoundWithOptions = 
+function playSoundWithOptions (sound, options) {
+  var _options = {};
+  SoundJSDirector.each(options, function (value, name) {
+    switch (name) {
+      default: _options[name] = value; break;
+      case 'pan': _options[name] = this.getSoundPan(sound, value); break;
+      case 'volume': _options[name] = this.getSoundVolume(sound, value); break;
+    }
+  }, this);
+  sound.play(_options);
+  return this;
 };
 
 // Play free/all sounds in group.
 SoundJSDirectorGroupProto._playSounds = function playSounds (options, all) {
-  // TODO: pass arguments multiplied with all instance groups.
   SoundJSDirector.each(
     all ? this.sounds : this._wait, 
     function (sound) {
-      sound.play(options);
-    }
+      this._playSoundWithOptions(sound, options);
+    },
+    this
   );
   return this;
 };
 
 // Play first of free/all sounds.
 SoundJSDirectorGroupProto._playCollapsed = function playCollapsed (options, all) {
-  // TODO: pass arguments multiplied with all instance groups.
   var sound = SoundJSDirector.randomItem(all ? this.sounds : this._wait);
   if (sound) {
-    sound.play(options);
+    this._playSoundWithOptions(sound, options);
   }
   return this;
 };
