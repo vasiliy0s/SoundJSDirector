@@ -3,8 +3,11 @@
 // Set 'pan' property @value for playing/@all sounds in group
 // but every sound (instance) considers all of its groups.
 SoundJSDirectorGroupProto.setPan = function setGroupPan (value, all) {
+
   value = parseFloat(value) || 0.0;
+
   this.options.pan = value;
+
   SoundJSDirector.each(
     all ? this.sounds : this._playing,
     function (sound) {
