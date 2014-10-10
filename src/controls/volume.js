@@ -1,27 +1,19 @@
 'use strict';
 
 // Set all sounds volume.
-SoundJSDirectorGroupProto.setVolume = function setGroupVolume (volume) {
-  
-  var options = options;
+SoundJSDirectorGroupProto.setVolume = function setGroupVolume (value, all) {
 
-  volume = parseFloat(volume);
-  
-  if (volume === options.volume) {
-    return this;
-  }
-  
-  var sounds = this.sounds, 
-      len = sounds.length;
+  value = parseFloat(value) || 0.0;
 
-  if (!len) {
-    return this;
-  }
-  
-  for (var i = len, sound; i--; ) {
-    sound = sounds[i];
-    sound.setVolume(this.getSoundVolume(sound));
-  }
+  this.options.volume = value;
+
+  SoundJSDirector.each(
+    all ? this.sounds : this._playing,
+    function (sound) {
+      sound.setVolume(this.getSoundVolume(sound));
+    },
+    this
+  );
   
   return this;
 
@@ -34,9 +26,9 @@ SoundJSDirectorGroupProto.getVolume = function () {
 
 // Compute sound instance volume multiplied to groups volumes.
 SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound) {
-  var volume = sound.getVolume() || 0.0;
+  var volume = 1.0;
   SoundJSDirector.eachSoundGroup(sound, function (group) {
-    volume *= group.options.volume || 0.0;
+    volume *= parseFloat(group.options.volume) || 0.0;
   });
   return volume;
 };
