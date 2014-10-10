@@ -48,6 +48,7 @@ for view current available API in JavaScript _console_ of your browser.
 - Add version to code.
 - Add priorities for sounds.
 - Add easings for play/pause/resume/stop group operations.
+- Complete another TODOs from code.
 
 ## Author
 
