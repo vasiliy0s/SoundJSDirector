@@ -5,8 +5,6 @@
 // TODO: SoundJSDirector.setGroups() - register groups of sounds.
 // TODO: SoundJSDirector.setSounds() - register sounds (with initialization or loading).
 // TODO: Process priorities of every sound with group.
-// TODO: Group.setVolume() - -/-.
-// TODO: Group.getVolume() - -/-, etc.
 // TODO: provide sounds events in group like 'playing', 'played', 'loaded', other...
 // TODO: process INTERRUPTs on play.
 
