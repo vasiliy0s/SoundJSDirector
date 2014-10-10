@@ -18,7 +18,7 @@ SoundJSDirectorGroupProto.play = function playGroup (options, all) {
         options = arg1;
         all = false;
       }
-      else if ('object' !== typeof arg1) {
+      else if ('object' !== typeof arg0) {
         throw 'SoundJSDirector.Group.play() given bad arguments';
       }
     } break;
