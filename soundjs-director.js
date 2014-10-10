@@ -1,5 +1,5 @@
 /**
- * SoundJS Director v0.2.1
+ * SoundJS Director v0.2.2
  * Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector
  * by Vasiliy Os <talk@vasiliy0s.com>
  */
@@ -54,8 +54,6 @@ function SoundJSDirectorGroup (name, options) {
     throw 'SoundJSDirector.Group cannot initialize new sounds group without name';
   }
 
-  var addingSounds = options.sounds;
-
   this.name = name;
 
   // Parse options.
@@ -70,9 +68,12 @@ function SoundJSDirectorGroup (name, options) {
   this._playing = [];
   this._wait = [];
   
-  if (addingSounds instanceof Array) {
-    this.join(addingSounds);
+  // Add sounds from config.
+  var addingSounds = SoundJSDirector.toArray(options.sounds);
+  if (options.sound) {
+    addingSounds.push(options.sound);
   }
+  this.add(addingSounds);
 
   // Register group for access by name.
   SoundJSDirector.group(this);
@@ -98,7 +99,7 @@ SoundJSDirectorGroupProto.add = function addSounds (manifests) {
       if (!res) {
         throw 'SoundJSDirector.Group ' + this.name + ' cannot register sound ' + (manifest.id || manifest.src);
       }
-      instance = Sound.createInstance(manifest.id);
+      instance = Sound.createInstance(manifest.id || manifest.src);
       if (instance) {
         this.join(instance);
       }
