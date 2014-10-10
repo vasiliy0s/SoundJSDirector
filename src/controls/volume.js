@@ -27,6 +27,11 @@ SoundJSDirectorGroupProto.setVolume = function setGroupVolume (volume) {
 
 };
 
+// Returns group volume level.
+SoundJSDirectorGroupProto.getVolume = function () {
+  return this.options.volume;
+};
+
 // Compute sound instance volume multiplied to groups volumes.
 SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound) {
   var volume = sound.getVolume() || 0.0;
