@@ -25,8 +25,10 @@ SoundJSDirectorGroupProto.getVolume = function () {
 };
 
 // Compute sound instance volume multiplied to groups volumes.
-SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound) {
-  var volume = 1.0;
+SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound, volume) {
+  if (arguments.length <= 1) {
+    volume = DEFAULT_OPTIONS.volume;
+  }
   SoundJSDirector.eachSoundGroup(sound, function (group) {
     volume *= parseFloat(group.options.volume) || 0.0;
   });
