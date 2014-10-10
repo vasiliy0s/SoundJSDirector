@@ -25,8 +25,6 @@ function SoundJSDirectorGroup (name, options) {
     throw 'SoundJSDirector.Group cannot initialize new sounds group without name';
   }
 
-  var addingSounds = options.sounds;
-
   this.name = name;
 
   // Parse options.
@@ -41,9 +39,12 @@ function SoundJSDirectorGroup (name, options) {
   this._playing = [];
   this._wait = [];
   
-  if (addingSounds instanceof Array) {
-    this.join(addingSounds);
+  // Add sounds from config.
+  var addingSounds = SoundJSDirector.toArray(options.sounds);
+  if (options.sound) {
+    addingSounds.push(options.sound);
   }
+  this.add(addingSounds);
 
   // Register group for access by name.
   SoundJSDirector.group(this);
