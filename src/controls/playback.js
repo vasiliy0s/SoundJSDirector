@@ -1,9 +1,5 @@
 'use strict';
 
-// TODO: add easings to all of current methods.
-
-// TODO: Pass group options to every sounds considering every group of sound.
-
 // Play instances (free/all/one by id/src) with @options.
 // Usages:
 // .play() - play all free sounds with group options.
