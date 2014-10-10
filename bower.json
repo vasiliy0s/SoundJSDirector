@@ -28,6 +28,7 @@
     "bower_components",
     "*.json",
     "Gruntfile.js",
+    "*.sublime-*",
     "src",
     "test",
     "tests"
