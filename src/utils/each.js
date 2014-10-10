@@ -9,11 +9,10 @@ SoundJSDirector.each = function (collection, callback, ctx) {
     return;
   }
 
-  var _collection = collection.slice();
-
   ctx = ctx || null;
 
   if (collection instanceof Array) {
+    var _collection = collection.slice();
     for (var i = 0, len = _collection.length; i < len; i++) {
       if (OUT_EACH === callback.call(ctx, _collection[i], i)) {
         break;
@@ -23,7 +22,7 @@ SoundJSDirector.each = function (collection, callback, ctx) {
   else {
     for (var p in collection) {
       if (collection.hasOwnProperty(p)) {
-        if (OUT_EACH === callback.call(ctx, _collection[p], p)) {
+        if (OUT_EACH === callback.call(ctx, collection[p], p)) {
           break;
         }
       }
