@@ -1,6 +1,6 @@
 {
   "name": "soundjs-director",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector",
   "main": "soundjs-director.js",
   "scripts": {
