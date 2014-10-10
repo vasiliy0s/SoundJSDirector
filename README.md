@@ -5,10 +5,12 @@ Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector.
 
 ## Install
 
-You can install this package via [bower](http://bower.io/).
+You can install this package via [bower](http://bower.io/):
 ```sh
-bower install git@github.com:vasiliy0s/SoundJSDirector.git
+bower install git@github.com:vasiliy0s/SoundJSDirector.git --save
 ```
+
+And it will be install this package to your *bower_components* directory.
 
 ## Usage
 
@@ -16,7 +18,13 @@ After include of `soundjs-director.js` file to your site/app pages you can group
 
 ```js
 var SoundJSDirector = createjs.SoundJSDirector;
-new SoundJSDirector.Group('main', {volume: 0.5, collapsed: true}).add(['assets/sound1.js', 'assets/sound2.js']);
+
+// Create new group with static options and add sounds.
+new SoundJSDirector.Group('main', {volume: 0.5, collapsed: true})
+  .add(['assets/sound1.js', 'assets/sound2.js']);
+  
+// Play first free sound from group with custom options.
+// Delay is for complete group loading.
 setTimeout(function () {
   SoundJSDirector.group('main').play({offset: 1, loop: 3});
 }, 1000);
@@ -30,15 +38,16 @@ Sorry, API docs is not completed at now but you can use
 ```js
 console.debug(createjs.SoundJSDirector.group('main'));
 ```
-for view current available API in JavaScript _console_.
+for view current available API in JavaScript _console_ of your browser.
 
-## TODO
+## TODO:
 
 - Create basic README documentation.
 - Create full-featured documentation with any autobuilder.
-- Change description of package.
+- Add tests.
 - Add version to code.
-- 
+- Add priorities for sounds.
+- Add easings for play/pause/resume/stop group operations.
 
 ## Author
 
