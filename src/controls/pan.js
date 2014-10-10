@@ -25,8 +25,12 @@ SoundJSDirectorGroupProto.getPan = function () {
 };
 
 // Compute 'pan' property of @sound.
-SoundJSDirectorGroupProto.getSoundPan = function getSoundPan (sound) {
-  var pan = 0.0, count = 0;
+SoundJSDirectorGroupProto.getSoundPan = function getSoundPan (sound, pan) {
+  // TODO: get best pan computing (not sum, but vector).
+  var count = 0;
+  if (arguments.length <= 1) {
+    pan = DEFAULT_OPTIONS.pan;
+  }
   SoundJSDirector.eachSoundGroup(sound, function (group) {
     pan += 1.0 + parseFloat(group.options.pan) || 0.0;
     count++;
