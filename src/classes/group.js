@@ -1,7 +1,5 @@
 'use strict';
 
-// TODO: add events for methods.
-
 function SoundJSDirectorGroup (name, options) {
   
   var argsLen = arguments.length;

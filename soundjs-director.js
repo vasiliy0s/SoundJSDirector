@@ -1,5 +1,5 @@
 /**
- * SoundJS Director v0.1.0
+ * SoundJS Director v0.2.0
  * Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector
  * by Vasiliy Os <talk@vasiliy0s.com>
  */
@@ -8,12 +8,12 @@
 
 'use strict';
 
-// TODO: SoundJSDirector.setGroups() - register groups of sounds.
-// TODO: SoundJSDirector.setSounds() - register sounds (with initialization or loading).
-// TODO: Process priorities of every sound with group.
-// TODO: Group.setVolume() - -/-.
-// TODO: Group.getVolume() - -/-, etc.
+// TODO: add easings to all of current methods.
+// TODO: add README.md with basic functionality.
+// TODO: extend README.md to full documentation.
+// TODO: Process priorities of every sound in group for collapsed groups playing.
 // TODO: provide sounds events in group like 'playing', 'played', 'loaded', other...
+// TODO: pass Sound.INTERRUPT's to play() method.
 
 function SoundJSDirector () {
   throw 'SoundJSDirector cannot be initialized. Use \'new SoundJSDirector.Group\' for manage sounds';
@@ -28,8 +28,6 @@ DirectorProto._sendEvent = function (type) {
   this.dispatchEvent(event);
 };
 
-
-// TODO: add events for methods.
 
 function SoundJSDirectorGroup (name, options) {
   
@@ -178,6 +176,11 @@ SoundJSDirectorGroupProto.switchLoop = function switchGroupLoop (value) {
   return this;
 };
 
+// Get loop option value of group.
+SoundJSDirectorGroupProto.getLoop = function getGroupLoop () {
+  return this.options.loop;
+};
+
 
 // Set @value state of sound muting.
 SoundJSDirectorGroupProto.setMute = function setGroupMute (value) {
@@ -196,52 +199,162 @@ SoundJSDirectorGroupProto.switchMute = function switchGroupMute () {
 };
 
 
-SoundJSDirectorGroupProto.setPan = function setGroupPan () {
-  // TODO
+// Set 'pan' property @value for playing/@all sounds in group
+// but every sound (instance) considers all of its groups.
+SoundJSDirectorGroupProto.setPan = function setGroupPan (value, all) {
+
+  value = parseFloat(value) || 0.0;
+
+  this.options.pan = value;
+
+  SoundJSDirector.each(
+    all ? this.sounds : this._playing,
+    function (sound) {
+      sound.setPan(this.getSoundPan(sound));
+    }, 
+    this
+  );
+  
   return this;
 };
 
+// Get 'pan' property of current group.
+SoundJSDirectorGroupProto.getPan = function () {
+  return this.options.pan;
+};
 
-// TODO: add easings to all of current methods.
+// Compute 'pan' property of @sound.
+SoundJSDirectorGroupProto.getSoundPan = function getSoundPan (sound, pan) {
+  // TODO: get best pan computing (not sum, but vector).
+  var count = 0;
+  if (arguments.length <= 1) {
+    pan = DEFAULT_OPTIONS.pan;
+  }
+  SoundJSDirector.eachSoundGroup(sound, function (group) {
+    pan += 1.0 + parseFloat(group.options.pan) || 0.0;
+    count++;
+  });
+  return pan - count;
+};
 
-SoundJSDirectorGroupProto.play = function playGroup (options, all) {
-  // TODO: Pass group options to every sounds considering every group of sound.
 
-  options = SoundJSDirector.extend(
+// Play instances (free/all/one by id/src) with @options.
+// Usages:
+// .play() - play all free sounds with group options.
+// .play(id) - play only one instance (if exists) from group by id or src with group options.
+// .play(id, options) - play only one instance (if exists) from group by id or src with custom @options extended by group options.
+// .play(options, true) - play all (of group) sounds with @options extened by gropu options; @options can contain .id or .src for play only defined sound.
+// .play(options) - play all free sounds with @options extended by group options; @options can contain .id or .src for play only defined sound; @options can contain .all property for select playing sounds from all group sounds (not only free sounds).
+SoundJSDirectorGroupProto.play = function playGroup () {
+
+  var arg0 = arguments[0], id, options, all = false;
+
+  switch (arguments.length) {
+
+    default:
+    case 2: {
+      var arg1 = arguments[1];
+      if ('object' === typeof arg1) {
+        id = arg0;
+        options = arg1;
+        all = false;
+      }
+      else if ('object' !== typeof arg0) {
+        throw 'SoundJSDirector.Group.play() given bad arguments';
+      }
+      else {
+        options = arg0;
+        all = arg1;
+      }
+    } break;
+    
+    case 1: {
+      switch (typeof arg0) {
+        case 'string': id = arg0; break;
+        case 'object': options = arg0; id = options.id || options.src; break;
+        case 'boolean': all = arg0; break;
+        default: throw 'SoundJSDirector.Group.play() given bad arguments';
+      }
+    } break;
+    
+    case 0: break;
+  }
+
+  var _options = SoundJSDirector.extend(
     SoundJSDirector.parseOptions(options),
     this.options
   );
 
-  if (!options.collapsed) {
-    this._playSounds(options, all);
+  if (id) {
+    this.playSound(id, _options);
+  }
+
+  else if (!_options.collapsed) {
+    this._playSounds(_options, all);
   }
   
   else {
-    this._playCollapsed(options, all);
+    this._playCollapsed(_options, all);
   }
   
   return this;
 
 };
 
+// Play sound by @id (id/src of sound instance) with @options.
+SoundJSDirectorGroupProto.playSound = function playGroupSound (id, options) {
+
+  var sounds = this.sounds,
+      sound = sounds[id];
+
+  if (!sound && isNaN(parseInt(id))) {
+    this.eachSound(function (_sound) {
+      if (id === _sound.id || id === _sound.src) {
+        sound = _sound;
+        return SoundJSDirector.OUT_EACH;
+      }
+    });
+  }
+
+  if (sound) {
+    this._playSoundWithOptions(sound, options);
+  }
+
+  return this;
+};
+
+// Play @sound instance with @options.
+SoundJSDirectorGroupProto._playSoundWithOptions = 
+function playSoundWithOptions (sound, options) {
+  var _options = {};
+  SoundJSDirector.each(options, function (value, name) {
+    switch (name) {
+      default: _options[name] = value; break;
+      case 'pan': _options[name] = this.getSoundPan(sound, value); break;
+      case 'volume': _options[name] = this.getSoundVolume(sound, value); break;
+    }
+  }, this);
+  sound.play(_options);
+  return this;
+};
+
 // Play free/all sounds in group.
-SoundJSDirectorGroupProto._playSounds = function (options, all) {
-  // TODO: pass arguments multiplied with all instance groups.
+SoundJSDirectorGroupProto._playSounds = function playSounds (options, all) {
   SoundJSDirector.each(
     all ? this.sounds : this._wait, 
     function (sound) {
-      sound.play(options);
-    }
+      this._playSoundWithOptions(sound, options);
+    },
+    this
   );
   return this;
 };
 
 // Play first of free/all sounds.
-SoundJSDirectorGroupProto._playCollapsed = function (options, all) {
-  // TODO: pass arguments multiplied with all instance groups.
+SoundJSDirectorGroupProto._playCollapsed = function playCollapsed (options, all) {
   var sound = SoundJSDirector.randomItem(all ? this.sounds : this._wait);
   if (sound) {
-    sound.play(options);
+    this._playSoundWithOptions(sound, options);
   }
   return this;
 };
@@ -282,41 +395,42 @@ SoundJSDirectorGroupProto.setPosition = function setGroupPosition (value) {
 
 
 // Set all sounds volume.
-SoundJSDirectorGroupProto.setVolume = function setGroupVolume (volume) {
-  
-  var options = options;
+SoundJSDirectorGroupProto.setVolume = function setGroupVolume (value, all) {
 
-  volume = parseFloat(volume);
-  
-  if (volume === options.volume) {
-    return this;
-  }
-  
-  var sounds = this.sounds, 
-      len = sounds.length;
+  value = parseFloat(value) || 0.0;
 
-  if (!len) {
-    return this;
-  }
-  
-  for (var i = len, sound; i--; ) {
-    sound = sounds[i];
-    sound.setVolume(this.getSoundVolume(sound));
-  }
+  this.options.volume = value;
+
+  SoundJSDirector.each(
+    all ? this.sounds : this._playing,
+    function (sound) {
+      sound.setVolume(this.getSoundVolume(sound));
+    },
+    this
+  );
   
   return this;
 
 };
 
+// Returns group volume level.
+SoundJSDirectorGroupProto.getVolume = function () {
+  return this.options.volume;
+};
+
 // Compute sound instance volume multiplied to groups volumes.
-SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound) {
-  var volume = sound.getVolume() || 0.0;
+SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound, volume) {
+  if (arguments.length <= 1) {
+    volume = DEFAULT_OPTIONS.volume;
+  }
   SoundJSDirector.eachSoundGroup(sound, function (group) {
-    volume *= group.options.volume || 0.0;
+    volume *= parseFloat(group.options.volume) || 0.0;
   });
   return volume;
 };
 
+
+var OUT_EACH = SoundJSDirector.OUT_EACH = 'OUT_EACH';
 
 // Apply @callback with passing each of collection item with index of collection.
 SoundJSDirector.each = function (collection, callback, ctx) {
@@ -325,19 +439,22 @@ SoundJSDirector.each = function (collection, callback, ctx) {
     return;
   }
 
-  var _collection = collection.slice();
-
   ctx = ctx || null;
 
   if (collection instanceof Array) {
+    var _collection = collection.slice();
     for (var i = 0, len = _collection.length; i < len; i++) {
-      callback.call(ctx, _collection[i], i);
+      if (OUT_EACH === callback.call(ctx, _collection[i], i)) {
+        break;
+      }
     }
   }
   else {
     for (var p in collection) {
       if (collection.hasOwnProperty(p)) {
-      callback.call(ctx, _collection[p], p);
+        if (OUT_EACH === callback.call(ctx, collection[p], p)) {
+          break;
+        }
       }
     }
   }

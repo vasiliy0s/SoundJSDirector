@@ -13,3 +13,8 @@ SoundJSDirectorGroupProto.switchLoop = function switchGroupLoop (value) {
   options.loop = loop === 0 ? (parseInt(value) || -1) : 0;
   return this;
 };
+
+// Get loop option value of group.
+SoundJSDirectorGroupProto.getLoop = function getGroupLoop () {
+  return this.options.loop;
+};
