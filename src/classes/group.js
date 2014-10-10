@@ -69,7 +69,7 @@ SoundJSDirectorGroupProto.add = function addSounds (manifests) {
       if (!res) {
         throw 'SoundJSDirector.Group ' + this.name + ' cannot register sound ' + (manifest.id || manifest.src);
       }
-      instance = Sound.createInstance(manifest.id);
+      instance = Sound.createInstance(manifest.id || manifest.src);
       if (instance) {
         this.join(instance);
       }
