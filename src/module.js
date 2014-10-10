@@ -8,6 +8,7 @@
 // TODO: Group.setVolume() - -/-.
 // TODO: Group.getVolume() - -/-, etc.
 // TODO: provide sounds events in group like 'playing', 'played', 'loaded', other...
+// TODO: process INTERRUPTs on play.
 
 function SoundJSDirector () {
   throw 'SoundJSDirector cannot be initialized. Use \'new SoundJSDirector.Group\' for manage sounds';
