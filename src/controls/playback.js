@@ -22,6 +22,28 @@ SoundJSDirectorGroupProto.play = function playGroup (options, all) {
 
 };
 
+// Play sound by @id (id/src of sound instance) with @options.
+SoundJSDirectorGroupProto.playSound = function playGroupSound (id, options) {
+
+  var sounds = this.sounds,
+      sound = sounds[id];
+
+  if (!sound && isNaN(parseInt(id))) {
+    this.eachSound(function (_sound) {
+      if (id === _sound.id || id === _sound.src) {
+        sound = _sound;
+        return SoundJSDirector.OUT_EACH;
+      }
+    });
+  }
+
+  if (sound) {
+    sound.play(options);
+  }
+
+  return this;
+};
+
 // Play free/all sounds in group.
 SoundJSDirectorGroupProto._playSounds = function (options, all) {
   // TODO: pass arguments multiplied with all instance groups.
