@@ -141,6 +141,7 @@ SoundJSDirectorGroupProto.resume = function resumeGroup () {
 SoundJSDirectorGroupProto.stop = function stopGroup () {
   this.eachPlayingSound(function (sound) {
     sound.stop();
+    sound._sendEvent('stopped');
   });
   return this;
 };
