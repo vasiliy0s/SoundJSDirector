@@ -19,3 +19,7 @@ DirectorProto._sendEvent = function (type) {
   var event = new createjs.Event(type);
   this.dispatchEvent(event);
 };
+
+DirectorProto.toString = function () {
+  return '[SoundJSDirector]';
+};
