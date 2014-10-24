@@ -132,3 +132,8 @@ SoundJSDirectorGroupProto.exists = function soundExists (sound) {
     default: return false;
   }
 };
+
+// Custom .toString method.
+SoundJSDirectorGroupProto.toString = function () {
+  return '[SoundJSDirectorGroup]';
+};
