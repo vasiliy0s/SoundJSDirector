@@ -28,6 +28,10 @@ DirectorProto._sendEvent = function (type) {
   this.dispatchEvent(event);
 };
 
+DirectorProto.toString = function () {
+  return '[SoundJSDirector]';
+};
+
 
 function SoundJSDirectorGroup (name, options) {
   
@@ -160,6 +164,11 @@ SoundJSDirectorGroupProto.exists = function soundExists (sound) {
     case 'string': return !!this.sounds[sound];
     default: return false;
   }
+};
+
+// Custom .toString method.
+SoundJSDirectorGroupProto.toString = function () {
+  return '[SoundJSDirectorGroup]';
 };
 
 
