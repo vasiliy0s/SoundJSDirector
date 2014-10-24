@@ -1,5 +1,5 @@
 /**
- * SoundJS Director v0.2.2
+ * SoundJS Director v0.2.3
  * Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector
  * by Vasiliy Os <talk@vasiliy0s.com>
  */
@@ -389,6 +389,7 @@ SoundJSDirectorGroupProto.resume = function resumeGroup () {
 SoundJSDirectorGroupProto.stop = function stopGroup () {
   this.eachPlayingSound(function (sound) {
     sound.stop();
+    sound._sendEvent('stopped');
   });
   return this;
 };
@@ -668,8 +669,9 @@ SoundJSDirector.handleSoundsStates = function (sound) {
   var unifyedGroupHandler = function (e) {
 
     var from, to;
-    
+
     switch (e.type) {
+      case 'stopped':
       case 'complete':
       case 'failed':
       case 'interrupted': {
@@ -684,6 +686,10 @@ SoundJSDirector.handleSoundsStates = function (sound) {
       } break;
     }
 
+    if (!(from && to)) {
+      return;
+    }
+    
     var switchCollection = SoundJSDirector.switchCollection;
     SoundJSDirector.eachSoundGroup(sound, function (group) {
       switchCollection(
@@ -695,6 +701,7 @@ SoundJSDirector.handleSoundsStates = function (sound) {
 
   };
 
+  sound.on('stopped', unifyedGroupHandler);
   sound.on('complete', unifyedGroupHandler);
   sound.on('failed', unifyedGroupHandler);
   sound.on('interrupted', unifyedGroupHandler);
