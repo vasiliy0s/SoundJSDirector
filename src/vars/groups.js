@@ -110,8 +110,9 @@ SoundJSDirector.handleSoundsStates = function (sound) {
   var unifyedGroupHandler = function (e) {
 
     var from, to;
-    
+
     switch (e.type) {
+      case 'stopped':
       case 'complete':
       case 'failed':
       case 'interrupted': {
@@ -126,6 +127,10 @@ SoundJSDirector.handleSoundsStates = function (sound) {
       } break;
     }
 
+    if (!(from && to)) {
+      return;
+    }
+    
     var switchCollection = SoundJSDirector.switchCollection;
     SoundJSDirector.eachSoundGroup(sound, function (group) {
       switchCollection(
@@ -137,6 +142,7 @@ SoundJSDirector.handleSoundsStates = function (sound) {
 
   };
 
+  sound.on('stopped', unifyedGroupHandler);
   sound.on('complete', unifyedGroupHandler);
   sound.on('failed', unifyedGroupHandler);
   sound.on('interrupted', unifyedGroupHandler);
