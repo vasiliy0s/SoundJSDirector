@@ -13,13 +13,13 @@ function SoundJSDirector () {
 
 createjs.SoundJSDirector = SoundJSDirector;
 
-var DirectorProto = SoundJSDirector.prototype = new createjs.EventDispatcher();
+var SoundJSDirectorProto = SoundJSDirector.prototype = new createjs.EventDispatcher();
 
-DirectorProto._sendEvent = function (type) {
+SoundJSDirectorProto._sendEvent = function (type) {
   var event = new createjs.Event(type);
   this.dispatchEvent(event);
 };
 
-DirectorProto.toString = function () {
+SoundJSDirectorProto.toString = function () {
   return '[SoundJSDirector]';
 };
