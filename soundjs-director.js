@@ -1,5 +1,5 @@
 /**
- * SoundJS Director v0.2.4
+ * SoundJS Director v0.3.0
  * Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector
  * by Vasiliy Os <talk@vasiliy0s.com>
  */
@@ -456,7 +456,7 @@ SoundJSDirectorGroupProto.stop = function stopGroup (sounds) {
     } break;
   }
 
-  if (!sounds.length) {
+  if (!(sounds && sounds.length)) {
     sounds = null;
   }
 
