@@ -22,6 +22,7 @@
     "createjs": true,
     "SoundsJS": true,
     "SoundJSDirector": true,
+    "SoundJSDirectorProto": true,
     "SoundJSDirectorGroup": true,
     "SoundJSDirectorGroupProto": true,
     "DEFAULT_OPTIONS": true
