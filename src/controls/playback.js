@@ -152,7 +152,7 @@ SoundJSDirectorGroupProto.stop = function stopGroup (sounds) {
     } break;
   }
 
-  if (!sounds.length) {
+  if (!(sounds && sounds.length)) {
     sounds = null;
   }
 
