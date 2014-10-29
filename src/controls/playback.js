@@ -138,11 +138,37 @@ SoundJSDirectorGroupProto.resume = function resumeGroup () {
 };
 
 // Stop all playing group sounds.
-SoundJSDirectorGroupProto.stop = function stopGroup () {
+SoundJSDirectorGroupProto.stop = function stopGroup (sounds) {
+
+  switch (arguments.length) {
+    case 0: sounds = null; break;
+    case 1: {
+      if (!(sounds instanceof(Array))) {
+        sounds = [sounds];
+      }
+    } break;
+    default: {
+      sounds = SoundJSDirector.toArray(arguments);
+    } break;
+  }
+
+  if (!sounds.length) {
+    sounds = null;
+  }
+
   this.eachPlayingSound(function (sound) {
+    if (sounds &&
+        (sounds.indexOf(sound) < 0 || 
+          sounds.indexOf(sound.src) < 0 || 
+          sounds.indexOf(sound.id) < 0))
+    {
+      return;
+    }
     sound.stop();
-    sound._sendEvent('stopped');
+    sound.dispatchEvent('stopped');
   });
+
   return this;
+  
 };
 
