@@ -1,5 +1,5 @@
 /**
- * SoundJS Director v0.2.3
+ * SoundJS Director v0.2.4
  * Manager for groupped and alone sounds in CreateJS/SoundJS with SoundJSDirector
  * by Vasiliy Os <talk@vasiliy0s.com>
  */
@@ -21,14 +21,14 @@ function SoundJSDirector () {
 
 createjs.SoundJSDirector = SoundJSDirector;
 
-var DirectorProto = SoundJSDirector.prototype = new createjs.EventDispatcher();
+var SoundJSDirectorProto = SoundJSDirector.prototype = new createjs.EventDispatcher();
 
-DirectorProto._sendEvent = function (type) {
+SoundJSDirectorProto._sendEvent = function (type) {
   var event = new createjs.Event(type);
   this.dispatchEvent(event);
 };
 
-DirectorProto.toString = function () {
+SoundJSDirectorProto.toString = function () {
   return '[SoundJSDirector]';
 };
 
@@ -169,6 +169,62 @@ SoundJSDirectorGroupProto.exists = function soundExists (sound) {
 // Custom .toString method.
 SoundJSDirectorGroupProto.toString = function () {
   return '[SoundJSDirectorGroup]';
+};
+
+
+// Load all group sounds.
+SoundJSDirectorGroupProto.load = function loadGroupSounds (onload) {
+
+  var Sound = createjs.Sound,
+      group = this,
+      notLoadedURLs = [],
+      notLoadedURLsLen = 0;
+
+  // Find not loaded sounds by src property.
+  this.eachSound(function (sound) {
+    var src = sound.src;
+    if (notLoadedURLs.indexOf(src) < 0 && !Sound.loadComplete(sound.src)) {
+      notLoadedURLs[notLoadedURLsLen++] = src;
+      return;
+    }
+  });
+
+  // Optimization fix.
+  if (!notLoadedURLsLen) {
+    return this;
+  }
+
+  // Handle files loading.
+  Sound.on('fileload', function onFileLoad (a) {
+    var src = a.src,
+        index = notLoadedURLs.indexOf(src);
+    if (index < 0) {
+      return;
+    }
+    notLoadedURLs.splice(index, 1);
+    if (!notLoadedURLs.length) {
+      Sound.off('fileload', onFileLoad);
+      group.dispatchEvent('loaded');
+    }
+  });
+
+  // Register loading callback.
+  if ('function' === typeof onload) {
+    group.on('loaded', function onLoaded (e) {
+      group.off('loaded', onLoaded);
+      onload(e);
+    });
+  }
+
+  // Load files.
+  SoundJSDirector.each(
+    notLoadedURLs,
+    Sound.registerSound,
+    Sound
+  );
+
+  return this;
+
 };
 
 
@@ -386,12 +442,38 @@ SoundJSDirectorGroupProto.resume = function resumeGroup () {
 };
 
 // Stop all playing group sounds.
-SoundJSDirectorGroupProto.stop = function stopGroup () {
+SoundJSDirectorGroupProto.stop = function stopGroup (sounds) {
+
+  switch (arguments.length) {
+    case 0: sounds = null; break;
+    case 1: {
+      if (!(sounds instanceof(Array))) {
+        sounds = [sounds];
+      }
+    } break;
+    default: {
+      sounds = SoundJSDirector.toArray(arguments);
+    } break;
+  }
+
+  if (!sounds.length) {
+    sounds = null;
+  }
+
   this.eachPlayingSound(function (sound) {
+    if (sounds &&
+        (sounds.indexOf(sound) < 0 || 
+          sounds.indexOf(sound.src) < 0 || 
+          sounds.indexOf(sound.id) < 0))
+    {
+      return;
+    }
     sound.stop();
-    sound._sendEvent('stopped');
+    sound.dispatchEvent('stopped');
   });
+
   return this;
+  
 };
 
 
