@@ -1,7 +1,7 @@
 'use strict';
 
 // Set all sounds volume.
-SoundJSDirectorGroupProto.setVolume = function setGroupVolume (value, all) {
+SoundJSDirectorGroup.prototype.setVolume = function setGroupVolume (value, all) {
 
   value = parseFloat(value) || 0.0;
 
@@ -20,12 +20,12 @@ SoundJSDirectorGroupProto.setVolume = function setGroupVolume (value, all) {
 };
 
 // Returns group volume level.
-SoundJSDirectorGroupProto.getVolume = function () {
+SoundJSDirectorGroup.prototype.getVolume = function () {
   return this.options.volume;
 };
 
 // Compute sound instance volume multiplied to groups volumes.
-SoundJSDirectorGroupProto.getSoundVolume = function getSoundVolume (sound, volume) {
+SoundJSDirectorGroup.prototype.getSoundVolume = function getSoundVolume (sound, volume) {
   if (arguments.length <= 1) {
     volume = DEFAULT_OPTIONS.volume;
   }

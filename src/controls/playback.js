@@ -7,7 +7,7 @@
 // .play(id, options) - play only one instance (if exists) from group by id or src with custom @options extended by group options.
 // .play(options, true) - play all (of group) sounds with @options extened by gropu options; @options can contain .id or .src for play only defined sound.
 // .play(options) - play all free sounds with @options extended by group options; @options can contain .id or .src for play only defined sound; @options can contain .all property for select playing sounds from all group sounds (not only free sounds).
-SoundJSDirectorGroupProto.play = function playGroup () {
+SoundJSDirectorGroup.prototype.play = function playGroup () {
 
   var arg0 = arguments[0], id, options, all = false;
 
@@ -64,7 +64,7 @@ SoundJSDirectorGroupProto.play = function playGroup () {
 };
 
 // Play sound by @id (id/src of sound instance) with @options.
-SoundJSDirectorGroupProto.playSound = function playGroupSound (id, options) {
+SoundJSDirectorGroup.prototype.playSound = function playGroupSound (id, options) {
 
   var sounds = this.sounds,
       sound = sounds[id];
@@ -86,7 +86,7 @@ SoundJSDirectorGroupProto.playSound = function playGroupSound (id, options) {
 };
 
 // Play @sound instance with @options.
-SoundJSDirectorGroupProto._playSoundWithOptions = 
+SoundJSDirectorGroup.prototype._playSoundWithOptions = 
 function playSoundWithOptions (sound, options) {
   var _options = {};
   SoundJSDirector.each(options, function (value, name) {
@@ -101,7 +101,7 @@ function playSoundWithOptions (sound, options) {
 };
 
 // Play free/all sounds in group.
-SoundJSDirectorGroupProto._playSounds = function playSounds (options, all) {
+SoundJSDirectorGroup.prototype._playSounds = function playSounds (options, all) {
   SoundJSDirector.each(
     all ? this.sounds : this._wait, 
     function (sound) {
@@ -113,7 +113,7 @@ SoundJSDirectorGroupProto._playSounds = function playSounds (options, all) {
 };
 
 // Play first of free/all sounds.
-SoundJSDirectorGroupProto._playCollapsed = function playCollapsed (options, all) {
+SoundJSDirectorGroup.prototype._playCollapsed = function playCollapsed (options, all) {
   var sound = SoundJSDirector.randomItem(all ? this.sounds : this._wait);
   if (sound) {
     this._playSoundWithOptions(sound, options);
@@ -122,7 +122,7 @@ SoundJSDirectorGroupProto._playCollapsed = function playCollapsed (options, all)
 };
 
 // Pause all playing sounds.
-SoundJSDirectorGroupProto.pause = function pauseGroup () {
+SoundJSDirectorGroup.prototype.pause = function pauseGroup () {
   this.eachPlayingSound(function (sound) {
     sound.pause();
   });
@@ -130,7 +130,7 @@ SoundJSDirectorGroupProto.pause = function pauseGroup () {
 };
 
 // Resume all paused group sounds.
-SoundJSDirectorGroupProto.resume = function resumeGroup () {
+SoundJSDirectorGroup.prototype.resume = function resumeGroup () {
   this.eachPlayingSound(function (sound) {
     sound.resume();
   });
@@ -138,7 +138,7 @@ SoundJSDirectorGroupProto.resume = function resumeGroup () {
 };
 
 // Stop all playing group sounds.
-SoundJSDirectorGroupProto.stop = function stopGroup (sounds) {
+SoundJSDirectorGroup.prototype.stop = function stopGroup (sounds) {
 
   switch (arguments.length) {
     case 0: sounds = null; break;

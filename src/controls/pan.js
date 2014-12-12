@@ -2,7 +2,7 @@
 
 // Set 'pan' property @value for playing/@all sounds in group
 // but every sound (instance) considers all of its groups.
-SoundJSDirectorGroupProto.setPan = function setGroupPan (value, all) {
+SoundJSDirectorGroup.prototype.setPan = function setGroupPan (value, all) {
 
   value = parseFloat(value) || 0.0;
 
@@ -20,12 +20,12 @@ SoundJSDirectorGroupProto.setPan = function setGroupPan (value, all) {
 };
 
 // Get 'pan' property of current group.
-SoundJSDirectorGroupProto.getPan = function () {
+SoundJSDirectorGroup.prototype.getPan = function () {
   return this.options.pan;
 };
 
 // Compute 'pan' property of @sound.
-SoundJSDirectorGroupProto.getSoundPan = function getSoundPan (sound, pan) {
+SoundJSDirectorGroup.prototype.getSoundPan = function getSoundPan (sound, pan) {
   // TODO: get best pan computing (not sum, but vector).
   var count = 0;
   if (arguments.length <= 1) {

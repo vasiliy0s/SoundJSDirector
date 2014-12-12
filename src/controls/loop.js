@@ -1,13 +1,13 @@
 'use strict';
 
 // Set @value for group.
-SoundJSDirectorGroupProto.setLoop = function setGroupLoop (value) {
+SoundJSDirectorGroup.prototype.setLoop = function setGroupLoop (value) {
   this.options.loop = parseInt(value) || 0;
   return this;
 };
 
 // Switch group loop to 0 if it not 0 and -1 or @value if it is.
-SoundJSDirectorGroupProto.switchLoop = function switchGroupLoop (value) {
+SoundJSDirectorGroup.prototype.switchLoop = function switchGroupLoop (value) {
   var options = this.options,
       loop = options.loop;
   options.loop = loop === 0 ? (parseInt(value) || -1) : 0;
@@ -15,6 +15,6 @@ SoundJSDirectorGroupProto.switchLoop = function switchGroupLoop (value) {
 };
 
 // Get loop option value of group.
-SoundJSDirectorGroupProto.getLoop = function getGroupLoop () {
+SoundJSDirectorGroup.prototype.getLoop = function getGroupLoop () {
   return this.options.loop;
 };

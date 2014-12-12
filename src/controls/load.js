@@ -1,7 +1,7 @@
 'use strict';
 
 // Load all group sounds.
-SoundJSDirectorGroupProto.load = function loadGroupSounds (onload) {
+SoundJSDirectorGroup.prototype.load = function loadGroupSounds (onload) {
 
   var Sound = createjs.Sound,
       group = this,
