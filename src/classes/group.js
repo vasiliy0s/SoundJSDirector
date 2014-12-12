@@ -110,6 +110,14 @@ SoundJSDirectorGroup.prototype.leave = function leaveGroup (sounds) {
   return this;
 };
 
+SoundJSDirectorGroup.prototype.flush = function flushGroup () {
+  this.leave(this.sounds);
+  this.sounds.length = 0;
+  this._playing.length = 0;
+  this._wait.length = 0;
+  return this;
+};
+
 // Call @callback (with @ctx) with every sound of group.
 SoundJSDirectorGroup.prototype.eachSound = function eachSound (callback, ctx) {
   SoundJSDirector.each(this.sounds, callback, ctx || null);
