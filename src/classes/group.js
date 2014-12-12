@@ -1,6 +1,10 @@
 'use strict';
 
 function SoundJSDirectorGroup (name, options) {
+
+  if (!(this instanceof SoundJSDirectorGroup)) {
+    return new SoundJSDirectorGroupProto(name, options);
+  }
   
   var argsLen = arguments.length;
   
@@ -51,12 +55,14 @@ function SoundJSDirectorGroup (name, options) {
 
 }
 
+// Gropp link.
 SoundJSDirector.Group = SoundJSDirector.prototype.Group = SoundJSDirectorGroup;
 
-var SoundJSDirectorGroupProto = SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
+// Prototype.
+SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
 
 // Add sounds with instances creation from SoundJS @manifest.
-SoundJSDirectorGroupProto.add = function addSounds (manifests) {
+SoundJSDirectorGroup.prototype.add = function addSounds (manifests) {
   var Sound = createjs.Sound,
       instance;
   if (!(manifests instanceof Array)) {
@@ -81,7 +87,7 @@ SoundJSDirectorGroupProto.add = function addSounds (manifests) {
 };
 
 // Join @sounds (sound instance or array of sound instances) to current group.
-SoundJSDirectorGroupProto.join = function joinGroup (sounds) {
+SoundJSDirectorGroup.prototype.join = function joinGroup (sounds) {
   if (sounds && 'object' === typeof sounds) {
     if (!(sounds instanceof Array)) {
       SoundJSDirector.setSoundGroup(sounds, this);
@@ -94,7 +100,7 @@ SoundJSDirectorGroupProto.join = function joinGroup (sounds) {
 };
 
 // Leave @sound (instance or array of instances) from current group.
-SoundJSDirectorGroupProto.leave = function leaveGroup (sounds) {
+SoundJSDirectorGroup.prototype.leave = function leaveGroup (sounds) {
   if (sounds instanceof Array) {
     SoundJSDirector.each(sounds, this.leave, this);
   }
@@ -105,27 +111,27 @@ SoundJSDirectorGroupProto.leave = function leaveGroup (sounds) {
 };
 
 // Call @callback (with @ctx) with every sound of group.
-SoundJSDirectorGroupProto.eachSound = function eachSound (callback, ctx) {
+SoundJSDirectorGroup.prototype.eachSound = function eachSound (callback, ctx) {
   SoundJSDirector.each(this.sounds, callback, ctx || null);
 };
 
 // Call @callback (with @ctx) with every currently playing sound.
-SoundJSDirectorGroupProto.eachPlayingSound = function eachPlayingSound (callback, ctx) {
+SoundJSDirectorGroup.prototype.eachPlayingSound = function eachPlayingSound (callback, ctx) {
   SoundJSDirector.each(this._playing, callback, ctx || null);
 };
 
 // Call @callback (with @ctx) with every currently not playing sound.
-SoundJSDirectorGroupProto.eachWaitSound = function eachWaitSound (callback, ctx) {
+SoundJSDirectorGroup.prototype.eachWaitSound = function eachWaitSound (callback, ctx) {
   SoundJSDirector.each(this._wait, callback, ctx || null);
 };
 
 // Returns sound instance by id or src (as is setted in .add() method).
-SoundJSDirectorGroupProto.sound = function getSound (sound) {
+SoundJSDirectorGroup.prototype.sound = function getSound (sound) {
   return this.sounds[sound] || null;
 };
 
 // Check for sound instance exists in group;
-SoundJSDirectorGroupProto.exists = function soundExists (sound) {
+SoundJSDirectorGroup.prototype.exists = function soundExists (sound) {
   switch (typeof sound) {
     case 'object': return this.sounds.indexOf(sound) >= 0;
     case 'string': return !!this.sounds[sound];
@@ -134,6 +140,6 @@ SoundJSDirectorGroupProto.exists = function soundExists (sound) {
 };
 
 // Custom .toString method.
-SoundJSDirectorGroupProto.toString = function () {
+SoundJSDirectorGroup.prototype.toString = function () {
   return '[SoundJSDirectorGroup]';
 };
