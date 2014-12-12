@@ -33,7 +33,7 @@ SoundJSDirectorGroup.prototype.play = function playGroup () {
     case 1: {
       switch (typeof arg0) {
         case 'string': id = arg0; break;
-        case 'object': options = arg0; id = options.id || options.src; break;
+        case 'object': options = arg0; id = options.id || options.src; all = options.all; break;
         case 'boolean': all = arg0; break;
         default: throw 'SoundJSDirector.Group.play() given bad arguments';
       }
