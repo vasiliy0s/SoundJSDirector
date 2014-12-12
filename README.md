@@ -47,8 +47,10 @@ for view current available API in JavaScript _console_ of your browser.
 - Add tests.
 - Add version to code.
 - Add priorities for sounds.
-- Add easings for play/pause/resume/stop group operations.
+- Add easings for playback and volume/pan/mute setting group operations.
 - Complete another TODOs from code.
+- TODO: pass Sound.INTERRUPT's to play() method.
+- TODO: provide sounds events in group like 'playing', 'played', 'loaded', other...
 
 ## Author
 
