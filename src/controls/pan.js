@@ -6,7 +6,7 @@ SoundJSDirectorGroup.prototype.setPan = function setGroupPan (value, all) {
 
   value = parseFloat(value) || 0.0;
 
-  this.options.pan = value;
+  this.set('pan', value);
 
   SoundJSDirector.each(
     all ? this.sounds : this._playing,
@@ -21,7 +21,7 @@ SoundJSDirectorGroup.prototype.setPan = function setGroupPan (value, all) {
 
 // Get 'pan' property of current group.
 SoundJSDirectorGroup.prototype.getPan = function () {
-  return this.options.pan;
+  return this.get('pan');
 };
 
 // Compute 'pan' property of @sound.

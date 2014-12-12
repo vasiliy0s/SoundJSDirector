@@ -5,7 +5,7 @@ SoundJSDirectorGroup.prototype.setVolume = function setGroupVolume (value, all) 
 
   value = parseFloat(value) || 0.0;
 
-  this.options.volume = value;
+  this.set('volume', value);
 
   SoundJSDirector.each(
     all ? this.sounds : this._playing,
@@ -21,7 +21,7 @@ SoundJSDirectorGroup.prototype.setVolume = function setGroupVolume (value, all) 
 
 // Returns group volume level.
 SoundJSDirectorGroup.prototype.getVolume = function () {
-  return this.options.volume;
+  return this.get('volume');
 };
 
 // Compute sound instance volume multiplied to groups volumes.
@@ -30,7 +30,7 @@ SoundJSDirectorGroup.prototype.getSoundVolume = function getSoundVolume (sound, 
     volume = DEFAULT_OPTIONS.volume;
   }
   SoundJSDirector.eachSoundGroup(sound, function (group) {
-    volume *= parseFloat(group.options.volume) || 0.0;
+    volume *= parseFloat(group.get('volume')) || 0.0;
   });
   return volume;
 };

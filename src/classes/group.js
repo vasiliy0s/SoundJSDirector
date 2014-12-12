@@ -64,6 +64,7 @@ SoundJSDirectorGroup.prototype = new createjs.EventDispatcher();
 // Add sounds with instances creation from SoundJS @manifest.
 SoundJSDirectorGroup.prototype.add = function addSounds (manifests) {
   var Sound = createjs.Sound,
+      group = this,
       instance;
   if (!(manifests instanceof Array)) {
     manifests = [manifests];
@@ -72,7 +73,7 @@ SoundJSDirectorGroup.prototype.add = function addSounds (manifests) {
     SoundJSDirector.toArray(manifests),
     function (manifest) {
       manifest = ('object' === typeof manifest ? manifest : {'src': manifest});
-      var res = Sound.registerSound(manifest, manifest.basePath);
+      var res = Sound.registerSound(manifest, manifest.basePath || group.get('basePath'));
       if (!res) {
         throw 'SoundJSDirector.Group ' + this.name + ' cannot register sound ' + (manifest.id || manifest.src);
       }
@@ -144,6 +145,21 @@ SoundJSDirectorGroup.prototype.exists = function soundExists (sound) {
     case 'object': return this.sounds.indexOf(sound) >= 0;
     case 'string': return !!this.sounds[sound];
     default: return false;
+  }
+};
+
+// Change `name` option to value.
+SoundJSDirectorGroup.prototype.set = function setOption (name, value) {
+  this.options[name] = value;
+  return this;
+};
+
+// Get `name` option value.
+SoundJSDirectorGroup.prototype.get = function getOption (name) {
+  switch (name) {
+    case 'name': return this.name;
+    case 'sounds': return this.sounds;
+    default: return this.options[name];
   }
 };
 
