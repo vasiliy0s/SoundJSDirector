@@ -11,7 +11,7 @@ function SoundJSDirectorGroup (name, options) {
   if (1 === argsLen) {
     switch (typeof name) {
       case 'string': {
-        options = SoundJSDirector.extend(DEFAULT_OPTIONS);
+        options = SoundJSDirector.extend(SoundJSDirector._defaults);
         options.name = name;
       } break;
       case 'object': {
@@ -34,7 +34,7 @@ function SoundJSDirectorGroup (name, options) {
   // Parse options.
   this.options = SoundJSDirector.extend(
     SoundJSDirector.parseOptions(options),
-    DEFAULT_OPTIONS, 
+    SoundJSDirector._defaults, 
     true
   );
 
