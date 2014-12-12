@@ -103,12 +103,21 @@ Resume every playing sound in group.
 ##### SoundJSDirectorGroup.stop()
 Stop every playing sound in group.
 
+##### SoundJSDirectorGroup.setVolume(value[, all])
+Set `value` volume for group sound. Use `all = true` for apply for all of group sound (with not currently playing).
+
+##### SoundJSDirectorGroup.getVolume()
+Returns group volume.
+
+##### SoundJSDirectorGroup.getSoundVolume(SoundInstance, volume)
+Compute volume based on `volume` value and all of joined groups settings.
+
 #### SoundJSDirector.group(name)
 Get defined group by `name` for manage.
 
 ## TODO:
 
-- Create basic README documentation.
+- Complete README documentation.
 - Force sounds loading when .play() is called.
 - Create full-featured documentation with any autobuilder.
 - Add tests.
