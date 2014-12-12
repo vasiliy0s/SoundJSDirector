@@ -3,7 +3,7 @@
 function SoundJSDirectorGroup (name, options) {
 
   if (!(this instanceof SoundJSDirectorGroup)) {
-    return new SoundJSDirectorGroupProto(name, options);
+    return new SoundJSDirectorGroup(name, options);
   }
   
   var argsLen = arguments.length;
